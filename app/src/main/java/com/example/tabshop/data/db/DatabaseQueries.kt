@@ -3,236 +3,158 @@ package com.example.tabshop.data.db
 import android.content.ContentValues
 import android.content.Context
 import android.database.Cursor
+import com.example.tabshop.data.model.*
 
 class DatabaseQueries(private val context: Context) {
 
     private val dbHelper = DatabaseHelper(context)
 
     // -------------------------
-    // Categories
-    // -------------------------
-    fun getAllCategories(): Cursor {
-        val db = dbHelper.openDatabase()
-        return db.rawQuery("SELECT * FROM categories", null)
-    }
-
-    fun insertCategory(name: String): Long {
-        val db = dbHelper.openDatabase()
-        val values = ContentValues().apply {
-            put("name", name)
-        }
-        return db.insert("categories", null, values)
-    }
-
-    fun updateCategory(id: Int, name: String): Int {
-        val db = dbHelper.openDatabase()
-        val values = ContentValues().apply {
-            put("name", name)
-        }
-        return db.update("categories", values, "category_id=?", arrayOf(id.toString()))
-    }
-
-    fun deleteCategory(id: Int): Int {
-        val db = dbHelper.openDatabase()
-        return db.delete("categories", "category_id=?", arrayOf(id.toString()))
-    }
-
-    // -------------------------
     // Products
     // -------------------------
-    fun getAllProducts(): Cursor {
+    fun getAllProducts(): List<Product> {
         val db = dbHelper.openDatabase()
-        return db.rawQuery("SELECT * FROM products", null)
+        val cursor = db.rawQuery("SELECT * FROM products", null)
+        val products = mutableListOf<Product>()
+        cursor.use {
+            while (it.moveToNext()) {
+                products.add(
+                    Product(
+                        id = it.getInt(it.getColumnIndexOrThrow("id")),
+                        sku = it.getString(it.getColumnIndexOrThrow("sku")),
+                        name = it.getString(it.getColumnIndexOrThrow("name")),
+                        sellingPrice = it.getDouble(it.getColumnIndexOrThrow("selling_price")),
+                        stockQuantity = it.getDouble(it.getColumnIndexOrThrow("stock_quantity")),
+                        reorderLevel = it.getDouble(it.getColumnIndexOrThrow("reorder_level")),
+                        expiryDate = it.getString(it.getColumnIndexOrThrow("expiry_date")),
+                        isActive = it.getInt(it.getColumnIndexOrThrow("isActive")) == 1,
+                        isDeleted = it.getInt(it.getColumnIndexOrThrow("isDeleted")) == 1
+                    )
+                )
+            }
+        }
+        return products
     }
 
-    fun insertProduct(
-        name: String, categoryId: Int, brand: String?, unit: String?,
-        description: String?, purchasePrice: Double, sellingPrice: Double,
-        stockQuantity: Int, barcode: String?, imagePath: String?
-    ): Long {
+    fun insertProduct(product: Product): Long {
         val db = dbHelper.openDatabase()
         val values = ContentValues().apply {
-            put("name", name)
-            put("category_id", categoryId)
-            put("brand", brand)
-            put("unit", unit)
-            put("description", description)
-            put("purchase_price", purchasePrice)
-            put("selling_price", sellingPrice)
-            put("stock_quantity", stockQuantity)
-            put("barcode", barcode)
-            put("image_path", imagePath)
+            put("sku", product.sku)
+            put("name", product.name)
+            put("selling_price", product.sellingPrice)
+            put("stock_quantity", product.stockQuantity)
+            put("reorder_level", product.reorderLevel)
+            put("expiry_date", product.expiryDate)
+            put("isActive", if (product.isActive) 1 else 0)
+            put("isDeleted", if (product.isDeleted) 1 else 0)
         }
         return db.insert("products", null, values)
     }
 
-    fun updateProduct(
-        productId: Int, name: String, categoryId: Int, brand: String?, unit: String?,
-        description: String?, purchasePrice: Double, sellingPrice: Double,
-        stockQuantity: Int, barcode: String?, imagePath: String?
-    ): Int {
+    fun updateProduct(product: Product): Int {
         val db = dbHelper.openDatabase()
         val values = ContentValues().apply {
-            put("name", name)
-            put("category_id", categoryId)
-            put("brand", brand)
-            put("unit", unit)
-            put("description", description)
-            put("purchase_price", purchasePrice)
-            put("selling_price", sellingPrice)
-            put("stock_quantity", stockQuantity)
-            put("barcode", barcode)
-            put("image_path", imagePath)
+            put("sku", product.sku)
+            put("name", product.name)
+            put("selling_price", product.sellingPrice)
+            put("stock_quantity", product.stockQuantity)
+            put("reorder_level", product.reorderLevel)
+            put("expiry_date", product.expiryDate)
+            put("isActive", if (product.isActive) 1 else 0)
+            put("isDeleted", if (product.isDeleted) 1 else 0)
         }
-        return db.update("products", values, "product_id=?", arrayOf(productId.toString()))
+        return db.update("products", values, "id=?", arrayOf(product.id.toString()))
     }
 
-    fun deleteProduct(productId: Int): Int {
+    fun deleteProduct(id: Int): Int {
         val db = dbHelper.openDatabase()
-        return db.delete("products", "product_id=?", arrayOf(productId.toString()))
-    }
-
-    // -------------------------
-    // Suppliers
-    // -------------------------
-    fun getAllSuppliers(): Cursor {
-        val db = dbHelper.openDatabase()
-        return db.rawQuery("SELECT * FROM suppliers", null)
-    }
-
-    fun insertSupplier(name: String, contact: String?, address: String?): Long {
-        val db = dbHelper.openDatabase()
-        val values = ContentValues().apply {
-            put("name", name)
-            put("contact", contact)
-            put("address", address)
-        }
-        return db.insert("suppliers", null, values)
-    }
-
-    fun updateSupplier(id: Int, name: String, contact: String?, address: String?): Int {
-        val db = dbHelper.openDatabase()
-        val values = ContentValues().apply {
-            put("name", name)
-            put("contact", contact)
-            put("address", address)
-        }
-        return db.update("suppliers", values, "supplier_id=?", arrayOf(id.toString()))
-    }
-
-    fun deleteSupplier(id: Int): Int {
-        val db = dbHelper.openDatabase()
-        return db.delete("suppliers", "supplier_id=?", arrayOf(id.toString()))
+        return db.delete("products", "id=?", arrayOf(id.toString()))
     }
 
     // -------------------------
     // Customers
     // -------------------------
-    fun getAllCustomers(): Cursor {
+    fun getAllCustomers(): List<Customer> {
         val db = dbHelper.openDatabase()
-        return db.rawQuery("SELECT * FROM customers", null)
+        val cursor = db.rawQuery("SELECT * FROM customers", null)
+        val customers = mutableListOf<Customer>()
+        cursor.use {
+            while (it.moveToNext()) {
+                customers.add(
+                    Customer(
+                        id = it.getInt(it.getColumnIndexOrThrow("id")),
+                        name = it.getString(it.getColumnIndexOrThrow("name")),
+                        phone = it.getString(it.getColumnIndexOrThrow("phone")),
+                        isActive = it.getInt(it.getColumnIndexOrThrow("isActive")) == 1,
+                        isDeleted = it.getInt(it.getColumnIndexOrThrow("isDeleted")) == 1
+                    )
+                )
+            }
+        }
+        return customers
     }
 
-    fun insertCustomer(name: String, contact: String?, address: String?): Long {
+    fun insertCustomer(customer: Customer): Long {
         val db = dbHelper.openDatabase()
         val values = ContentValues().apply {
-            put("name", name)
-            put("contact", contact)
-            put("address", address)
+            put("name", customer.name)
+            put("phone", customer.phone)
+            put("isActive", if (customer.isActive) 1 else 0)
+            put("isDeleted", if (customer.isDeleted) 1 else 0)
         }
         return db.insert("customers", null, values)
     }
 
-    fun updateCustomer(id: Int, name: String, contact: String?, address: String?): Int {
+    fun updateCustomer(customer: Customer): Int {
         val db = dbHelper.openDatabase()
         val values = ContentValues().apply {
-            put("name", name)
-            put("contact", contact)
-            put("address", address)
+            put("name", customer.name)
+            put("phone", customer.phone)
+            put("isActive", if (customer.isActive) 1 else 0)
+            put("isDeleted", if (customer.isDeleted) 1 else 0)
         }
-        return db.update("customers", values, "customer_id=?", arrayOf(id.toString()))
+        return db.update("customers", values, "id=?", arrayOf(customer.id.toString()))
     }
 
     fun deleteCustomer(id: Int): Int {
         val db = dbHelper.openDatabase()
-        return db.delete("customers", "customer_id=?", arrayOf(id.toString()))
-    }
-
-    // -------------------------
-    // Purchases & Purchase Items
-    // -------------------------
-    fun getAllPurchases(): Cursor {
-        val db = dbHelper.openDatabase()
-        return db.rawQuery("SELECT * FROM purchases", null)
-    }
-
-    fun insertPurchase(supplierId: Int?, invoiceNo: String?, purchaseDate: String, totalAmount: Double?): Long {
-        val db = dbHelper.openDatabase()
-        val values = ContentValues().apply {
-            put("supplier_id", supplierId)
-            put("invoice_no", invoiceNo)
-            put("purchase_date", purchaseDate)
-            put("total_amount", totalAmount)
-        }
-        return db.insert("purchases", null, values)
-    }
-
-    fun insertPurchaseItem(purchaseId: Int, productId: Int, quantity: Int, purchasePrice: Double): Long {
-        val db = dbHelper.openDatabase()
-        val values = ContentValues().apply {
-            put("purchase_id", purchaseId)
-            put("product_id", productId)
-            put("quantity", quantity)
-            put("purchase_price", purchasePrice)
-        }
-        return db.insert("purchase_items", null, values)
-    }
-
-    // -------------------------
-    // Sales & Sale Items
-    // -------------------------
-    fun getAllSales(): Cursor {
-        val db = dbHelper.openDatabase()
-        return db.rawQuery("SELECT * FROM sales", null)
-    }
-
-    fun insertSale(customerId: Int?, saleDate: String, totalAmount: Double?, discount: Double, paymentMethod: String?): Long {
-        val db = dbHelper.openDatabase()
-        val values = ContentValues().apply {
-            put("customer_id", customerId)
-            put("sale_date", saleDate)
-            put("total_amount", totalAmount)
-            put("discount", discount)
-            put("payment_method", paymentMethod)
-        }
-        return db.insert("sales", null, values)
-    }
-
-    fun insertSaleItem(saleId: Int, productId: Int, quantity: Int, sellingPrice: Double): Long {
-        val db = dbHelper.openDatabase()
-        val values = ContentValues().apply {
-            put("sale_id", saleId)
-            put("product_id", productId)
-            put("quantity", quantity)
-            put("selling_price", sellingPrice)
-        }
-        return db.insert("sale_items", null, values)
+        return db.delete("customers", "id=?", arrayOf(id.toString()))
     }
 
     // -------------------------
     // Users
     // -------------------------
-    fun getAllUsers(): Cursor {
+    fun getAllUsers(): List<User> {
         val db = dbHelper.openDatabase()
-        return db.rawQuery("SELECT * FROM users", null)
+        val cursor = db.rawQuery("SELECT * FROM users", null)
+        val users = mutableListOf<User>()
+        cursor.use {
+            while (it.moveToNext()) {
+                users.add(
+                    User(
+                        id = it.getInt(it.getColumnIndexOrThrow("id")),
+                        name = it.getString(it.getColumnIndexOrThrow("name")),
+                        username = it.getString(it.getColumnIndexOrThrow("username")),
+                        password = it.getString(it.getColumnIndexOrThrow("password")),
+                        role = it.getString(it.getColumnIndexOrThrow("role")),
+                        isActive = it.getInt(it.getColumnIndexOrThrow("isActive")) == 1,
+                        isDeleted = it.getInt(it.getColumnIndexOrThrow("isDeleted")) == 1
+                    )
+                )
+            }
+        }
+        return users
     }
 
-    fun insertUser(username: String, password: String, role: String): Long {
+    fun insertUser(user: User): Long {
         val db = dbHelper.openDatabase()
         val values = ContentValues().apply {
-            put("username", username)
-            put("password", password)
-            put("role", role)
+            put("name", user.name)
+            put("username", user.username)
+            put("password", user.password)
+            put("role", user.role)
+            put("isActive", if (user.isActive) 1 else 0)
+            put("isDeleted", if (user.isDeleted) 1 else 0)
         }
         return db.insert("users", null, values)
     }

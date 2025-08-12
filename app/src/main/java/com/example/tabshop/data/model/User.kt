@@ -1,8 +1,11 @@
 package com.example.tabshop.data.model
 
 data class User(
-    val userId: Int,
+    val id: Int = 0,
+    val name: String,
     val username: String,
     val password: String,
-    val role: String
+    val role: String, // Admin, Cashier, Manager, etc.
+    val isActive: Boolean = true,
+    val isDeleted: Boolean = false
 )

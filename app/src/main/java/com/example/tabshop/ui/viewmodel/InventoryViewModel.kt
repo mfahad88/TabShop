@@ -15,32 +15,6 @@ class InventoryViewModel(application: Application) : AndroidViewModel(applicatio
 
     private val repository = InventoryRepository(application)
 
-    // -------------------------
-    // Categories
-    // -------------------------
-    private val _categories = MutableLiveData<List<Category>>()
-    val categories: LiveData<List<Category>> = _categories
-
-    fun loadCategories() {
-        viewModelScope.launch {
-            _categories.value = withContext(Dispatchers.IO) { repository.getCategories() }
-        }
-    }
-
-    fun addCategory(name: String) = viewModelScope.launch(Dispatchers.IO) {
-        repository.addCategory(name)
-        loadCategories()
-    }
-
-    fun updateCategory(id: Int, name: String) = viewModelScope.launch(Dispatchers.IO) {
-        repository.updateCategory(id, name)
-        loadCategories()
-    }
-
-    fun deleteCategory(id: Int) = viewModelScope.launch(Dispatchers.IO) {
-        repository.deleteCategory(id)
-        loadCategories()
-    }
 
     // -------------------------
     // Products

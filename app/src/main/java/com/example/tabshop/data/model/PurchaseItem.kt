@@ -1,9 +1,11 @@
 package com.example.tabshop.data.model
 
 data class PurchaseItem(
-    val purchaseItemId: Int,
+    val id: Int = 0,
     val purchaseId: Int,
     val productId: Int,
-    val quantity: Int,
-    val purchasePrice: Double
+    val quantity: Double,
+    val unitPrice: Double,
+    val isActive: Boolean = true,
+    val isDeleted: Boolean = false
 )

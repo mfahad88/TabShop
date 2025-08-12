@@ -1,15 +1,13 @@
 package com.example.tabshop.data.model
 
 data class Product(
-    val productId: Int,
+    val id: Int = 0,
+    val sku: String? = null,
     val name: String,
-    val categoryId: Int,
-    val brand: String?,
-    val unit: String?,
-    val description: String?,
-    val purchasePrice: Double,
     val sellingPrice: Double,
-    val stockQuantity: Int = 0,
-    val barcode: String?,
-    val imagePath: String?
+    val stockQuantity: Double = 0.0,
+    val reorderLevel: Double = 0.0,
+    val expiryDate: String? = null, // YYYY-MM-DD, nullable for non-perishables
+    val isActive: Boolean = true,
+    val isDeleted: Boolean = false
 )

@@ -1,9 +1,10 @@
 package com.example.tabshop.data.model
 
 data class Purchase(
-    val purchaseId: Int,
-    val supplierId: Int?,
-    val invoiceNo: String?,
-    val purchaseDate: String,
-    val totalAmount: Double?
+    val id: Int = 0,
+    val supplierId: Int? = null,
+    val purchaseDate: String, // YYYY-MM-DD
+    val totalAmount: Double,
+    val isActive: Boolean = true,
+    val isDeleted: Boolean = false
 )
