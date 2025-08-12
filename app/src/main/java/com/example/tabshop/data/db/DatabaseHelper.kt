@@ -1,4 +1,4 @@
-package com.example.tabshop.Utils
+package com.example.tabshop.data.db
 
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
